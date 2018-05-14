@@ -37,9 +37,9 @@ namespace StrategicGame.Server {
         void IntroduceNewClients(ClientAcceptor acceptor) {
             TcpClient client;
             while ((client = acceptor.PullClient()) != null) {
-                var remoteClient = new RemoteSide(client, _logger);
+                var remoteClient = new RemoteSide(client, Command.Deserialize, _logger);
                 _logger.Log("Client connected: {0}", remoteClient.RemoteEndPoint);
-                remoteClient.WriteMessage(null); // Hello!
+                remoteClient.WriteMessage(new WorldParameters(7, 7));
                 _remoteClients.Add(remoteClient);
             }
         }

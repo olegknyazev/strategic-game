@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using StrategicGame.Common;
@@ -10,7 +11,7 @@ namespace StrategicGame.Client {
                 var client = new TcpClient();
                 try {
                     client.Connect(endPoint);
-                    var remote = new RemoteSide(client, logger);
+                    var remote = new RemoteSide(client, Status.Deserialize, logger);
                     logger.Log("Connected to {0}", remote.RemoteEndPoint);
                     client = null; // RemoteSide now owns TcpClient
                     return remote;

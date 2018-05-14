@@ -43,6 +43,7 @@ namespace StrategicGame.Common {
         }
 
         public override void Serialize(BinaryWriter writer) {
+            writer.Write(CODE);
             writer.Write(Width);
             writer.Write(Height);
         }
@@ -75,6 +76,7 @@ namespace StrategicGame.Common {
         }
         
         public override void Serialize(BinaryWriter writer) {
+            writer.Write(CODE);
             writer.Write(Id);
             writer.Write(X);
             writer.Write(Y);

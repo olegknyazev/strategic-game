@@ -1,8 +1,8 @@
-﻿using StrategicGame.Common;
-using System;
+﻿using System;
 using System.Net;
 using System.Threading;
 using UnityEngine;
+using StrategicGame.Common;
 
 namespace StrategicGame.Client {
     public class Client : MonoBehaviour {
@@ -10,9 +10,9 @@ namespace StrategicGame.Client {
         bool _running;
 
         void Start() {
+            _running = true;
             _thread = new Thread(RemoteThread);
             _thread.Start();
-            _running = true;
         }
 
         void OnDisable() {
@@ -26,14 +26,11 @@ namespace StrategicGame.Client {
         private void RemoteThread() {
             var endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
             var remoteServer = RemoteServer.TryConnect(endPoint, UnityConsoleLogger.Instance);
-            remoteServer.WriteMessage(null); // Hello!
             while (_running) {
                 Message msg;
-                do {
-                    msg = remoteServer.ReadMessage();
-                    if (msg != null)
-                        Debug.LogFormat("Message received: {0}", msg);
-                } while (msg != null);
+                while ((msg = remoteServer.ReadMessage()) != null)
+                    Debug.LogFormat("Message received: {0}", msg);
+                Thread.Sleep(10);
             }
         }
     }
