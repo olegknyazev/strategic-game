@@ -1,7 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Net;
 using UnityEngine;
 
-public class Client : MonoBehaviour {
+namespace StrategicGame.Client {
+    public class Client : MonoBehaviour {
+        RemoteServer _remoteServer;
 
+        void Start() {    
+            var endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
+            _remoteServer = new RemoteServer(endPoint);
+        }
+    }
 }
