@@ -9,7 +9,7 @@ namespace StrategicGame.Server {
         static readonly IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
 
         ILogger _logger;
-        List<RemoteClient> _remoteClients = new List<RemoteClient>();
+        List<RemoteSide> _remoteClients = new List<RemoteSide>();
 
         public Program(ILogger logger) {
             _logger = logger;
@@ -30,8 +30,9 @@ namespace StrategicGame.Server {
         void IntroduceNewClients(ClientAcceptor acceptor) {
             TcpClient client;
             while ((client = acceptor.PullClient()) != null) {
-                var remoteClient = new RemoteClient(client);
+                var remoteClient = new RemoteSide(client, _logger);
                 _logger.Log("Client connected: {0}", remoteClient.RemoteEndPoint);
+                remoteClient.WriteMessage(null); // Hello!
                 _remoteClients.Add(remoteClient);
             }
         }
