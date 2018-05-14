@@ -10,10 +10,13 @@ namespace StrategicGame.Server {
         static readonly IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
 
         ILogger _logger;
+        World _world;
         List<RemoteSide> _remoteClients = new List<RemoteSide>();
 
         public Program(ILogger logger) {
             _logger = logger;
+            var r = new Random();
+            _world = new World(r.Next(7, 12), r.Next(7, 12));
         }
 
         public void Execute() {
@@ -39,7 +42,7 @@ namespace StrategicGame.Server {
             while ((client = acceptor.PullClient()) != null) {
                 var remoteClient = new RemoteSide(client, Command.Deserialize, _logger);
                 _logger.Log("Client connected: {0}", remoteClient.RemoteEndPoint);
-                remoteClient.WriteMessage(new WorldParameters(7, 7));
+                remoteClient.WriteMessages(_world.Status);
                 _remoteClients.Add(remoteClient);
             }
         }

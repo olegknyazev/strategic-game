@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -60,6 +61,11 @@ namespace StrategicGame.Common {
             _writer.Seek(0, SeekOrigin.Begin);
             _writer.Write(length);
             _stream.Write(_writeBuffer, 0, HEADER_SIZE + length);
+        }
+
+        public void WriteMessages(IEnumerable<Message> msgs) {
+            foreach (var msg in msgs)
+                WriteMessage(msg);
         }
         
         public void Dispose() {
