@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace StrategicGame.Server {
     class Program : IDisposable {
@@ -19,6 +20,12 @@ namespace StrategicGame.Server {
             var acceptor = new ClientAcceptor(endPoint);
             while (true) {
                 IntroduceNewClients(acceptor);
+                foreach (var client in _remoteClients) {
+                    Message msg;
+                    while ((msg = client.ReadMessage()) != null)
+                        _logger.Log("{0} says {1}", client.RemoteEndPoint, msg);
+                }
+                Thread.Sleep(10);
             }
         }
 
