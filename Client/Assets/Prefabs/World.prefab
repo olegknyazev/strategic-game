@@ -52,3 +52,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CellPrefab: {fileID: 1948582948507822, guid: 698e970c8fd9c9247901172591cf1996, type: 2}
+  UnitPrefab: {fileID: 114905027341605866, guid: 44c37a94aea72ac43ae16c724f25255c,
+    type: 2}

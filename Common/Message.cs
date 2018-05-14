@@ -57,11 +57,11 @@ namespace StrategicGame.Common {
         internal const byte CODE = 2;
 
         public readonly uint Id;
-        public readonly short X;
-        public readonly short Y;
+        public readonly float X;
+        public readonly float Y;
         public readonly uint Frame;
         
-        public UnitPosition(uint id, short x, short y, uint frame) {
+        public UnitPosition(uint id, float x, float y, uint frame) {
             Id = id;
             X = x;
             Y = y;
@@ -70,8 +70,8 @@ namespace StrategicGame.Common {
         
         internal UnitPosition(BinaryReader reader) {
             Id = reader.ReadUInt32();
-            X = reader.ReadInt16();
-            Y = reader.ReadInt16();
+            X = reader.ReadSingle();
+            Y = reader.ReadSingle();
             Frame = reader.ReadUInt32();
         }
         

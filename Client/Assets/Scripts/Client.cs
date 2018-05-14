@@ -27,9 +27,13 @@ namespace StrategicGame.Client {
                 messagesToProcess.AddRange(_incomingMessages);
                 _incomingMessages.Clear();
             }
-            foreach (var msg in messagesToProcess)
+            foreach (var msg in messagesToProcess) {
+                Debug.Log("PROCESS: " + msg);
                 if (msg is WorldParameters)
                     RecreateWorld((WorldParameters)msg);
+                else if (msg is UnitPosition)
+                    UpdateUnitPosition((UnitPosition)msg);
+            }
         }
 
         void OnDisable() {
@@ -49,6 +53,10 @@ namespace StrategicGame.Client {
             _world.Initialize(worldParams);
             Camera.transform.position = _world.Center + Vector3.up * 10;
             Camera.transform.LookAt(_world.Center);
+        }
+
+        void UpdateUnitPosition(UnitPosition unitParams) {
+            _world.UpdateUnitPosition(unitParams);
         }
 
         void RemoteThread() {

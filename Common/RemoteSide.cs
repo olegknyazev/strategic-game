@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -60,7 +61,7 @@ namespace StrategicGame.Common {
             var length = (ushort)_writer.BaseStream.Position;
             _writer.Seek(0, SeekOrigin.Begin);
             _writer.Write(length);
-            _stream.Write(_writeBuffer, 0, HEADER_SIZE + length);
+            _stream.Write(_writeBuffer, 0, length);
         }
 
         public void WriteMessages(IEnumerable<Message> msgs) {
