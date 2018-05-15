@@ -18,6 +18,10 @@ namespace StrategicGame.Server {
             }
         }
         
+        public List<Message> Simulate(List<Message> commands) {
+            return new List<Message>();
+        }
+
         World() {
             var r = new Random();
             _width = r.Next(7, 12);

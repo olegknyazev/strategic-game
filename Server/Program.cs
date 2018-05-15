@@ -41,9 +41,6 @@ namespace StrategicGame.Server {
             while ((client = acceptor.PullClient()) != null) {
                 var remoteClient = new RemoteSide(client, Command.Deserialize, _logger);
                 _logger.Log("Client connected: {0}", remoteClient.RemoteEndPoint);
-                _logger.Log("STATUS:");
-                foreach (var m in _world.Status)
-                    _logger.Log("  - {0}", m);
                 remoteClient.WriteMessages(_world.Status);
                 _remoteClients.Add(remoteClient);
             }
