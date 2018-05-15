@@ -6,12 +6,14 @@ using System.Net.Sockets;
 using System.Threading;
 
 namespace StrategicGame.Server {
+    using RemoteClient = RemoteSide<Command, Status>;
+
     class Program : IDisposable {
         static readonly IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
 
         ILogger _logger;
         World _world;
-        List<RemoteSide> _remoteClients = new List<RemoteSide>();
+        List<RemoteClient> _remoteClients = new List<RemoteClient>();
 
         public Program(ILogger logger) {
             _logger = logger;
@@ -39,7 +41,7 @@ namespace StrategicGame.Server {
         void IntroduceNewClients(ClientAcceptor acceptor) {
             TcpClient client;
             while ((client = acceptor.PullClient()) != null) {
-                var remoteClient = new RemoteSide(client, Command.Deserialize, _logger);
+                var remoteClient = new RemoteClient(client, Command.Deserialize, _logger);
                 _logger.Log("Client connected: {0}", remoteClient.RemoteEndPoint);
                 remoteClient.WriteMessages(_world.Status);
                 _remoteClients.Add(remoteClient);

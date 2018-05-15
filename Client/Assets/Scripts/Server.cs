@@ -4,13 +4,15 @@ using System.Threading;
 using StrategicGame.Common;
 
 namespace StrategicGame.Client {
-    static class RemoteServer {
-        public static RemoteSide TryConnect(IPEndPoint endPoint, ILogger logger) {
+    using RemoteServer = RemoteSide<Status, Command>;
+
+    static class Server {
+        public static RemoteServer TryConnect(IPEndPoint endPoint, ILogger logger) {
             while (true) {
                 var client = new TcpClient();
                 try {
                     client.Connect(endPoint);
-                    var remote = new RemoteSide(client, Status.Deserialize, logger);
+                    var remote = new RemoteServer(client, Status.Deserialize, logger);
                     logger.Log("Connected to {0}", remote.RemoteEndPoint);
                     client = null; // RemoteSide now owns TcpClient
                     return remote;

@@ -10,7 +10,7 @@ namespace StrategicGame.Server {
         
         public static World RandomWorld() { return new World(); }
 
-        public IEnumerable<Message> Status { 
+        public IEnumerable<Status> Status { 
             get { 
                 yield return new WorldParameters((short)_width, (short)_height);
                 foreach (var unit in _units)
@@ -18,8 +18,8 @@ namespace StrategicGame.Server {
             }
         }
         
-        public List<Message> Simulate(List<Message> commands) {
-            return new List<Message>();
+        public List<Status> Simulate(List<Command> commands) {
+            return new List<Status>();
         }
 
         World() {

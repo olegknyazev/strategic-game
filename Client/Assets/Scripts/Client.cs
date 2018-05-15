@@ -61,7 +61,7 @@ namespace StrategicGame.Client {
 
         void RemoteThread() {
             var endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
-            var remoteServer = RemoteServer.TryConnect(endPoint, UnityConsoleLogger.Instance);
+            var remoteServer = Server.TryConnect(endPoint, UnityConsoleLogger.Instance);
             while (_running) {
                 Message msg;
                 while ((msg = remoteServer.ReadMessage()) != null)

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
 namespace StrategicGame.Common {
-    public class RemoteSide : IDisposable {
+    public class RemoteSide<IncomingT, OutgoingT> : IDisposable
+                where IncomingT : Message
+                where OutgoingT : Message {
         const int HEADER_SIZE = 2;
 
         TcpClient _client;
@@ -18,9 +19,9 @@ namespace StrategicGame.Common {
         BinaryWriter _writer;
         int _readPosition;
         int _expectedLength = HEADER_SIZE;
-        Func<BinaryReader, Message> _deserialize;
+        Func<BinaryReader, IncomingT> _deserialize;
 
-        public RemoteSide(TcpClient client, Func<BinaryReader, Message> deserialize, ILogger logger) {
+        public RemoteSide(TcpClient client, Func<BinaryReader, IncomingT> deserialize, ILogger logger) {
             _client = client;
             _stream = client.GetStream();
             _logger = logger;
@@ -31,10 +32,10 @@ namespace StrategicGame.Common {
 
         public EndPoint RemoteEndPoint { get { return _client.Client.RemoteEndPoint; } }
 
-        public Message ReadMessage() {
+        public IncomingT ReadMessage() {
             if (!_stream.DataAvailable)
                 return null;
-            Message result = null;
+            IncomingT result = null;
             int bytesRead = 0;
             do {
                 bytesRead = _stream.Read(_readBuffer, _readPosition, _expectedLength - _readPosition);
@@ -55,7 +56,7 @@ namespace StrategicGame.Common {
             return result;
         }
 
-        public void WriteMessage(Message msg) {
+        public void WriteMessage(OutgoingT msg) {
             _writer.Seek(HEADER_SIZE, SeekOrigin.Begin);
             msg.Serialize(_writer);
             var length = (ushort)_writer.BaseStream.Position;
@@ -64,7 +65,7 @@ namespace StrategicGame.Common {
             _stream.Write(_writeBuffer, 0, length);
         }
 
-        public void WriteMessages(IEnumerable<Message> msgs) {
+        public void WriteMessages(IEnumerable<OutgoingT> msgs) {
             foreach (var msg in msgs)
                 WriteMessage(msg);
         }
