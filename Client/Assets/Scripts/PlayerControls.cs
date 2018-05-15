@@ -25,6 +25,7 @@ namespace StrategicGame.Client {
                 if (unit) {
                     var groundPoint =  WorldRaycaster.RaycastGround(Input.mousePosition);
                     OnMoveOrder.InvokeSafe(unit, groundPoint);
+                    UnitSelector.Deselect();
                 }
             }
         }

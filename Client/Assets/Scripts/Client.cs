@@ -35,7 +35,8 @@ namespace StrategicGame.Client {
         }
         
         void OnMoveOrder(Unit unit, Vector3 destination) {
-            Debug.LogFormat("MoveOrder {0} --> {1}", unit, destination);
+            var destinationCell = new Int2((int)destination.x, (int)destination.z);
+            RemoteServer.PushCommand(new MoveOrder(new [] { unit.Id }, destinationCell));
         }
 
         void ProcessMessage(Status msg) {

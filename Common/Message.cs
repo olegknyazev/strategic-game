@@ -44,7 +44,7 @@ namespace StrategicGame.Common {
 
         public override void Serialize(BinaryWriter writer) {
             writer.Write(MessageType.MoveOrder);
-            writer.Write(_units.Count);
+            writer.Write((ushort)_units.Count);
             foreach (var unitId in _units)
                 writer.Write(unitId);
             writer.Write((short)Destination.X);

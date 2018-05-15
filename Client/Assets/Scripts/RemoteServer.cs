@@ -12,6 +12,7 @@ namespace StrategicGame.Client {
         Thread _thread;
         bool _running;
         List<Status> _incomingMessages = new List<Status>();
+        List<Command> _outgoingCommands = new List<Command>();
 
         public List<Status> PullMessages() {
             List<Status> messages = new List<Status>();
@@ -20,6 +21,11 @@ namespace StrategicGame.Client {
                 _incomingMessages.Clear();
             }
             return messages;
+        }
+
+        public void PushCommand(Command command) {
+            lock (_outgoingCommands)
+                _outgoingCommands.Add(command);
         }
 
         void Start() {
@@ -39,11 +45,18 @@ namespace StrategicGame.Client {
         void RemoteThread() {
             var endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
             var remoteSide = TryConnect(endPoint, UnityConsoleLogger.Instance);
+            var commandsToSend = new List<Command>();
             while (_running) {
                 Status msg;
                 while ((msg = remoteSide.ReadMessage()) != null)
                     lock (_incomingMessages)
                         _incomingMessages.Add(msg);
+                lock (_outgoingCommands) {
+                    commandsToSend.AddRange(_outgoingCommands);
+                    _outgoingCommands.Clear();
+                }
+                remoteSide.WriteMessages(commandsToSend);
+                commandsToSend.Clear();
                 Thread.Sleep(10);
             }
         }

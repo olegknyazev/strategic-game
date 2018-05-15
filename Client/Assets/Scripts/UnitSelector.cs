@@ -15,6 +15,10 @@ namespace StrategicGame.Client {
         public void SelectOne(Vector2 screenPoint) {
             SetSelection(WorldRaycaster.RaycastObject<Selectable>(screenPoint));
         }
+
+        public void Deselect() {
+            SetSelection(null);
+        }
         
         void Awake() {
             Assert.IsNotNull(WorldRaycaster);
