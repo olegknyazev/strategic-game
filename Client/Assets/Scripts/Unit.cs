@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
+using StrategicGame.Common;
 
 namespace StrategicGame.Client {
     public class Unit : MonoBehaviour {
-        public uint Id { get; private set; }
+        public UnitId Id { get; private set; }
 
-        public void Initialize(uint id) {
+        public void Initialize(UnitId id) {
             Id = id;
             name = "Unit #" + id;
         }

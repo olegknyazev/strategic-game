@@ -24,21 +24,21 @@ namespace StrategicGame.Common {
     }
 
     public sealed class MoveOrder : Command {
-        List<uint> _units;
+        List<UnitId> _units;
 
         public readonly Int2 Destination;
-        public IEnumerable<uint> Units { get { return _units; } }
+        public IEnumerable<UnitId> Units { get { return _units; } }
 
-        public MoveOrder(IEnumerable<uint> units, Int2 destination) {
-            _units = new List<uint>(units);
+        public MoveOrder(IEnumerable<UnitId> units, Int2 destination) {
+            _units = new List<UnitId>(units);
             Destination = destination;
         }
 
         internal MoveOrder(BinaryReader reader) {
             int count = reader.ReadUInt16();
-            _units = new List<uint>(count);
+            _units = new List<UnitId>(count);
             for (int i = 0; i < count; ++i)
-                _units.Add(reader.ReadUInt32());
+                _units.Add(new UnitId(reader.ReadUInt32()));
             Destination = new Int2(reader.ReadInt16(), reader.ReadInt16());
         }
 
@@ -46,7 +46,7 @@ namespace StrategicGame.Common {
             writer.Write(MessageType.MoveOrder);
             writer.Write((ushort)_units.Count);
             foreach (var unitId in _units)
-                writer.Write(unitId);
+                writer.Write(unitId.value);
             writer.Write((short)Destination.X);
             writer.Write((short)Destination.Y);
         }
@@ -95,12 +95,12 @@ namespace StrategicGame.Common {
     }
 
     public sealed class UnitPosition : Status {
-        public readonly uint Id;
+        public readonly UnitId Id;
         public readonly float X;
         public readonly float Y;
         public readonly uint Frame;
         
-        public UnitPosition(uint id, float x, float y, uint frame) {
+        public UnitPosition(UnitId id, float x, float y, uint frame) {
             Id = id;
             X = x;
             Y = y;
@@ -108,7 +108,7 @@ namespace StrategicGame.Common {
         }
         
         internal UnitPosition(BinaryReader reader) {
-            Id = reader.ReadUInt32();
+            Id = new UnitId(reader.ReadUInt32());
             X = reader.ReadSingle();
             Y = reader.ReadSingle();
             Frame = reader.ReadUInt32();
@@ -116,7 +116,7 @@ namespace StrategicGame.Common {
         
         public override void Serialize(BinaryWriter writer) {
             writer.Write(MessageType.UnitPosition);
-            writer.Write(Id);
+            writer.Write(Id.value);
             writer.Write(X);
             writer.Write(Y);
             writer.Write(Frame);
