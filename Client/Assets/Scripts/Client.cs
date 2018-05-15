@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.Assertions;
 using StrategicGame.Common;
+using System;
 
 namespace StrategicGame.Client {
     public class Client : MonoBehaviour {
         public RemoteServer RemoteServer;
+        public PlayerControls PlayerControls;
         public Camera Camera;
 
         [Header("Prefabs")]
@@ -14,13 +16,26 @@ namespace StrategicGame.Client {
 
         void Awake() {
             Assert.IsNotNull(RemoteServer);
+            Assert.IsNotNull(PlayerControls);
             Assert.IsNotNull(Camera);
             Assert.IsNotNull(WorldPrefab);
+        }
+
+        void OnEnable() {
+            PlayerControls.OnMoveOrder += OnMoveOrder;
+        }
+
+        void OnDisable() {
+            PlayerControls.OnMoveOrder -= OnMoveOrder;
         }
 
         void Update() {
             foreach (var msg in RemoteServer.PullMessages())
                 ProcessMessage(msg);
+        }
+        
+        void OnMoveOrder(Unit unit, Vector3 destination) {
+            Debug.LogFormat("MoveOrder {0} --> {1}", unit, destination);
         }
 
         void ProcessMessage(Status msg) {
@@ -37,6 +52,7 @@ namespace StrategicGame.Client {
                 _world = null;
             }
             _world = GameObject.Instantiate(WorldPrefab, transform);
+            _world.name = "World";
             _world.Initialize(worldParams);
             Camera.transform.position = _world.Center + Vector3.up * 10;
             Camera.transform.LookAt(_world.Center);

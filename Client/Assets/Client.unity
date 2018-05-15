@@ -213,7 +213,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5c6a5d6f46ba9347b345d49b247b68d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  WorldRaycaster: {fileID: 775477373}
+--- !u!1 &775477372
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 775477374}
+  - component: {fileID: 775477373}
+  m_Layer: 0
+  m_Name: WorldRaycaster
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &775477373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 775477372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4c132db8fe57c440901cf55b522cfc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   Camera: {fileID: 777983189}
+--- !u!4 &775477374
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 775477372}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1800358529}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &777983185
 GameObject:
   m_ObjectHideFlags: 0
@@ -331,7 +372,7 @@ Transform:
   m_Children:
   - {fileID: 355451527}
   m_Father: {fileID: 1800358529}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &955474421
 MonoBehaviour:
@@ -345,6 +386,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   UnitSelector: {fileID: 355451528}
+  WorldRaycaster: {fileID: 775477373}
 --- !u!1 &1194650093
 GameObject:
   m_ObjectHideFlags: 0
@@ -413,6 +455,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RemoteServer: {fileID: 1194650094}
+  PlayerControls: {fileID: 955474421}
   Camera: {fileID: 777983189}
   WorldPrefab: {fileID: 114154569796801960, guid: 9b0aa8d9ecc192a4993ac39f662c85d6,
     type: 2}
@@ -427,6 +470,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1194650095}
+  - {fileID: 775477374}
   - {fileID: 955474420}
   m_Father: {fileID: 0}
   m_RootOrder: 2

@@ -4,7 +4,7 @@ using UnityEngine.Assertions;
 
 namespace StrategicGame.Client {
     public class UnitSelector : MonoBehaviour {
-        public Camera Camera;
+        public WorldRaycaster WorldRaycaster;
         
         Selectable _currentSelection;
 
@@ -13,16 +13,11 @@ namespace StrategicGame.Client {
         }
 
         public void SelectOne(Vector2 screenPoint) {
-            var ray = Camera.ScreenPointToRay(screenPoint);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-                SetSelection(hit.collider.GetComponentInParent<Selectable>());
-            else
-                SetSelection(null);
+            SetSelection(WorldRaycaster.RaycastObject<Selectable>(screenPoint));
         }
         
         void Awake() {
-            Assert.IsNotNull(Camera);
+            Assert.IsNotNull(WorldRaycaster);
         }
 
         void SetSelection(Selectable selectable) {

@@ -23,7 +23,11 @@ namespace StrategicGame.Client {
             _unitsRoot = CreateGroup("Units");
             for (int x = 0; x < worldParams.Width; ++x)
                 for (int z = 0; z < worldParams.Height; ++z)
-                    GameObject.Instantiate(CellPrefab, new Vector3(x, 0, z), Quaternion.identity, _cellsRoot);
+                    GameObject.Instantiate(
+                        CellPrefab,
+                        new Vector3(x, 0, z),
+                        Quaternion.identity,
+                        _cellsRoot);
         }
 
         public void UpdateUnitPosition(UnitPosition unitParams) {
@@ -35,6 +39,7 @@ namespace StrategicGame.Client {
             Unit unit;
             if (!_units.TryGetValue(id, out unit)) {
                 unit = GameObject.Instantiate(UnitPrefab, _unitsRoot);
+                unit.Initialize(id);
                 _units.Add(id, unit);
             }
             return unit;
