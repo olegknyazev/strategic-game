@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace StrategicGame.Common {
     public abstract class Message {
@@ -9,9 +11,50 @@ namespace StrategicGame.Common {
         public static Command Deserialize(BinaryReader reader) {
             var type = reader.ReadByte();
             switch (type) {
-                default:
-                    throw new InvalidDataException("Unknown Command type " + type);
+                case MessageType.MoveOrder: return new MoveOrder(reader);
+                default: throw new InvalidDataException("Unknown Command type " + type);
             }
+        }
+    }
+
+    static class MessageType {
+        public const byte MoveOrder = 1;
+        public const byte WorldParameters = 2;
+        public const byte UnitPosition = 3;
+    }
+
+    public sealed class MoveOrder : Command {
+        List<uint> _units;
+
+        public readonly Int2 Destination;
+        public IEnumerable<uint> Units { get { return _units; } }
+
+        public MoveOrder(IEnumerable<uint> units, Int2 destination) {
+            _units = new List<uint>(units);
+            Destination = destination;
+        }
+
+        internal MoveOrder(BinaryReader reader) {
+            int count = reader.ReadUInt16();
+            _units = new List<uint>(count);
+            for (int i = 0; i < count; ++i)
+                _units.Add(reader.ReadUInt32());
+            Destination = new Int2(reader.ReadInt16(), reader.ReadInt16());
+        }
+
+        public override void Serialize(BinaryWriter writer) {
+            writer.Write(MessageType.MoveOrder);
+            writer.Write(_units.Count);
+            foreach (var unitId in _units)
+                writer.Write(unitId);
+            writer.Write((short)Destination.X);
+            writer.Write((short)Destination.Y);
+        }
+
+        public override string ToString() {
+            return string.Format("[MoveOrder ({0}) -> {1}]",
+                string.Join(", ", _units.Select(x => x.ToString()).ToArray()),
+                Destination);
         }
     }
 
@@ -19,16 +62,14 @@ namespace StrategicGame.Common {
         public static Status Deserialize(BinaryReader reader) {
             var type = reader.ReadByte();
             switch (type) {
-                case WorldParameters.CODE: return new WorldParameters(reader);
-                case UnitPosition.CODE: return new UnitPosition(reader);
+                case MessageType.WorldParameters: return new WorldParameters(reader);
+                case MessageType.UnitPosition: return new UnitPosition(reader);
                 default: throw new InvalidDataException("Unknown Status type " + type);
             }
         }
     }
 
     public sealed class WorldParameters : Status {
-        internal const byte CODE = 1;
-
         public readonly short Width;
         public readonly short Height;
 
@@ -43,7 +84,7 @@ namespace StrategicGame.Common {
         }
 
         public override void Serialize(BinaryWriter writer) {
-            writer.Write(CODE);
+            writer.Write(MessageType.WorldParameters);
             writer.Write(Width);
             writer.Write(Height);
         }
@@ -54,8 +95,6 @@ namespace StrategicGame.Common {
     }
 
     public sealed class UnitPosition : Status {
-        internal const byte CODE = 2;
-
         public readonly uint Id;
         public readonly float X;
         public readonly float Y;
@@ -76,7 +115,7 @@ namespace StrategicGame.Common {
         }
         
         public override void Serialize(BinaryWriter writer) {
-            writer.Write(CODE);
+            writer.Write(MessageType.UnitPosition);
             writer.Write(Id);
             writer.Write(X);
             writer.Write(Y);

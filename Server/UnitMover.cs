@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using StrategicGame.Common;
 
 namespace StrategicGame.Server {
     class UnitMover {
