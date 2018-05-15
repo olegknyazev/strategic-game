@@ -135,6 +135,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c227df765cd6734eaa723548541632b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NormalMaterial: {fileID: 2100000, guid: 5207b0761d7fe3a4189d8614cc59e18e, type: 2}
+  SelectedMaterial: {fileID: 2100000, guid: 7177204a28d512742a913e4943c1f548, type: 2}
 --- !u!114 &114905027341605866
 MonoBehaviour:
   m_ObjectHideFlags: 1
