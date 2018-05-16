@@ -10,6 +10,10 @@ namespace StrategicGame.Client {
         public UnitSelector UnitSelector;
         public WorldRaycaster WorldRaycaster;
 
+        Vector2 _mouseDownPosition;
+        bool _mousePressed;
+        UnitSelector.IFrameSelecting _frameSelecting;
+
         public event Action<Unit, Vector3> OnMoveOrder;
 
         void Awake() {
@@ -18,16 +22,31 @@ namespace StrategicGame.Client {
         }
 
         void Update() {
-            if (Input.GetMouseButtonDown(LMB))
-                UnitSelector.SelectOne(Input.mousePosition);
-            else if (Input.GetMouseButtonDown(RMB)) {
+            var mousePosition = (Vector2)Input.mousePosition;
+            if (Input.GetMouseButtonDown(LMB)) {
+                _mouseDownPosition = mousePosition;
+                _mousePressed = true;
+            } else if (Input.GetMouseButtonUp(LMB)) {
+                if (!_mousePressed)
+                    UnitSelector.SelectOne(mousePosition);
+                if (_frameSelecting != null) {
+                    _frameSelecting.End();
+                    _frameSelecting = null;
+                }
+                _mousePressed = false;
+            } else if (Input.GetMouseButtonDown(RMB)) {
                 var selection = UnitSelector.CurrentSelection;
                 var unit = selection ? selection.GetComponent<Unit>() : null;
                 if (unit) {
-                    var groundPoint =  WorldRaycaster.RaycastGround(Input.mousePosition);
+                    var groundPoint =  WorldRaycaster.RaycastGround(mousePosition);
                     OnMoveOrder.InvokeSafe(unit, groundPoint);
                     UnitSelector.Deselect();
                 }
+            } else if (_mousePressed) {
+                if (_frameSelecting != null)
+                    _frameSelecting.Update(mousePosition);
+                else if ((mousePosition - _mouseDownPosition).magnitude > 5)
+                    _frameSelecting = UnitSelector.BeginFrameSelection(mousePosition);
             }
         }
     }
