@@ -47,7 +47,7 @@ namespace StrategicGame.Server {
                 _units.Add(unit.Id, unit);
                 _grid[unit] = pos;
             }
-            _mover = new UnitMover(_grid, null);
+            _mover = new UnitMover(_grid, PathFinding.Find);
             _stepsPerSecond = stepsPerSecond;
             _stepTime = 1f / _stepsPerSecond;
         }

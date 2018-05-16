@@ -12,6 +12,7 @@ namespace StrategicGame.Server {
 
         class MovementState {
             Grid _grid;
+            FindPath _findPath;
             Unit _unit;
             Int2 _position;
             Int2 _nextPosition;
@@ -19,8 +20,9 @@ namespace StrategicGame.Server {
             Path _path;
             float _progress;
 
-            public MovementState(Grid grid, Unit unit, Int2 destination) {
+            public MovementState(Grid grid, Unit unit, Int2 destination, FindPath findPath) {
                 _grid = grid;
+                _findPath = findPath;
                 _unit = unit;
                 _position = grid[_unit];
                 _nextPosition = _position;
@@ -56,7 +58,14 @@ namespace StrategicGame.Server {
                 };
             }
 
-            static Int2 CellTowards(Int2 position, Int2 destination) {
+            Int2 CellTowards(Int2 position, Int2 destination) {
+                if (position == destination)
+                    return position;
+                var path = _findPath(_grid, position, destination, 3);
+                return CellTowardsDirect(position, path[0].End);
+            }
+
+            static Int2 CellTowardsDirect(Int2 position, Int2 destination) {
                 if (position == destination)
                     return position;
                 if (position.X > destination.X)
@@ -74,7 +83,7 @@ namespace StrategicGame.Server {
 
         Dictionary<Unit, MovementState> _movingUnits = new Dictionary<Unit, MovementState>();
 
-        public delegate Path FindPath(Grid grid, Int2 from, Int2 to);
+        public delegate Path FindPath(Grid grid, Int2 from, Int2 to, int maxLength = -1);
 
         public UnitMover(Grid grid, FindPath findPath) {
             _grid = grid;
@@ -87,7 +96,7 @@ namespace StrategicGame.Server {
                 state.SwitchDestination(destination);
                 return;
             }
-            state = new MovementState(_grid, unit, destination);
+            state = new MovementState(_grid, unit, destination, _findPath);
             _movingUnits.Add(unit, state);
         }
 
