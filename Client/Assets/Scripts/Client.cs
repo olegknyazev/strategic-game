@@ -35,8 +35,9 @@ namespace StrategicGame.Client {
         }
         
         void OnMoveOrder(Unit unit, Vector3 destination) {
-            var destinationCell = new Int2((int)destination.x, (int)destination.z);
-
+            var destinationCell = new Int2(
+                Mathf.RoundToInt(destination.x),
+                Mathf.RoundToInt(destination.z));
             RemoteServer.PushCommand(new MoveOrder(new [] { unit.Id }, destinationCell));
         }
 
