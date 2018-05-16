@@ -1,6 +1,7 @@
 ﻿using StrategicGame.Common;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -9,6 +10,7 @@ namespace StrategicGame.Server {
     using RemoteClient = RemoteSide<Command, Status>;
 
     class Program : IDisposable {
+        const int STEPS_PER_SECOND = 20;
         static readonly IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
 
         ILogger _logger;
@@ -17,18 +19,25 @@ namespace StrategicGame.Server {
 
         public Program(ILogger logger) {
             _logger = logger;
-            _world = World.RandomWorld();
+            _world = World.RandomWorld(STEPS_PER_SECOND);
         }
 
         public void Execute() {
             var acceptor = new ClientAcceptor(endPoint);
+            var clientCommands = new List<Command>();
             while (true) {
                 IntroduceNewClients(acceptor);
                 foreach (var client in _remoteClients) {
-                    Message msg;
-                    while ((msg = client.ReadMessage()) != null)
-                        _logger.Log("{0} says {1}", client.RemoteEndPoint, msg);
+                    Command cmd;
+                    while ((cmd = client.ReadMessage()) != null) {
+                        clientCommands.Add(cmd);
+                        _logger.Log("{0} says {1}", client.RemoteEndPoint, cmd);
+                    }
                 }
+                var statusMessages = _world.Simulate(clientCommands);
+                clientCommands.Clear();
+                foreach (var client in _remoteClients)
+                    client.WriteMessages(statusMessages);
                 Thread.Sleep(10);
             }
         }

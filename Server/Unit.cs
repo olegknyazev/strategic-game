@@ -2,19 +2,13 @@
 
 namespace StrategicGame.Server {
     class Unit {
-        UnitId _id;
-        float _x;
-        float _y;
-
-        public Unit(float x, float y) {
-            _id = UnitId.New();
-            _x = x;
-            _y = y;
+        public Unit(Float2 position) {
+            Id = UnitId.New();
+            Position = position;
         }
 
-        public UnitId Id { get { return _id; } }
-
-        public float X { get { return _x; } }
-        public float Y { get { return _y; } }
+        public UnitId Id { get; }
+        public Float2 Position { get; set; }
+        public float Speed { get { return 3.0f; } }
     }
 }

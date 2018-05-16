@@ -21,7 +21,8 @@ namespace StrategicGame.Client {
             if (Input.GetMouseButtonDown(LMB))
                 UnitSelector.SelectOne(Input.mousePosition);
             else if (Input.GetMouseButtonDown(RMB)) {
-                var unit = UnitSelector.CurrentSelection.GetComponent<Unit>();
+                var selection = UnitSelector.CurrentSelection;
+                var unit = selection ? selection.GetComponent<Unit>() : null;
                 if (unit) {
                     var groundPoint =  WorldRaycaster.RaycastGround(Input.mousePosition);
                     OnMoveOrder.InvokeSafe(unit, groundPoint);
