@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -27,20 +28,21 @@ namespace StrategicGame.Client {
                 _mouseDownPosition = mousePosition;
                 _mousePressed = true;
             } else if (Input.GetMouseButtonUp(LMB)) {
-                if (!_mousePressed)
-                    UnitSelector.SelectOne(mousePosition);
                 if (_frameSelecting != null) {
                     _frameSelecting.End();
                     _frameSelecting = null;
-                }
+                } else
+                    UnitSelector.SelectOne(mousePosition);
                 _mousePressed = false;
             } else if (Input.GetMouseButtonDown(RMB)) {
                 var selection = UnitSelector.CurrentSelection;
-                var unit = selection ? selection.GetComponent<Unit>() : null;
-                if (unit) {
-                    var groundPoint =  WorldRaycaster.RaycastGround(mousePosition);
-                    OnMoveOrder.InvokeSafe(unit, groundPoint);
-                    UnitSelector.Deselect();
+                if (selection.Any()) {
+                    var units = selection.Select(s => s.GetComponent<Unit>()).Where(s => s != null);
+                    if (units.Any()) {
+                        var groundPoint =  WorldRaycaster.RaycastGround(mousePosition);
+                        foreach (var unit in units)
+                            OnMoveOrder.InvokeSafe(unit, groundPoint);
+                    }
                 }
             } else if (_mousePressed) {
                 if (_frameSelecting != null)

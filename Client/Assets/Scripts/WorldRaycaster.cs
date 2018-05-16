@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -24,6 +25,11 @@ namespace StrategicGame.Client {
             return Vector3.zero;
         }
         
+        public IEnumerable<T> OverlapBox<T>(Bounds box) {
+            var colliders = Physics.OverlapBox(box.center, box.extents);
+            return colliders.Select(c => c.GetComponentInParent<T>()).Where(c => c != null);
+        }
+
         void Awake() {
             Assert.IsNotNull(Camera);
         }
