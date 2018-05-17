@@ -45,7 +45,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="Grid.cs" />
-    <Compile Include="PathFinding.cs" />
+    <Compile Include="Pathfinding.cs" />
     <Compile Include="UnitMover.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="World.cs" />

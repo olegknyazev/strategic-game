@@ -12,19 +12,14 @@ namespace StrategicGame.Server {
         }
     }
 
-    static class PathFinding {
+    static class Pathfinding {
         public static List<PathSegment> Find(Grid grid, Int2 from, Int2 to) {
-            var pathInfo = new Dictionary<Int2, PathNode> {{ from, new PathNode(from) }};
+            var pathInfo = new Dictionary<Int2, PathNode> { { from, new PathNode(from) } };
             var toProcess = new List<NodeToProcess> { new NodeToProcess(from, 0) };
             bool found = false;
             Int2 cell = from;
             while (toProcess.Count > 0) {
-                int minIdx = 0;
-                for (int i = 1; i < toProcess.Count; ++i)
-                    if (toProcess[i].EstimatedDistance < toProcess[minIdx].EstimatedDistance)
-                        minIdx = i;
-                cell = toProcess[minIdx].Node;
-                toProcess.RemoveAt(minIdx);
+                cell = PopBestNode(toProcess);
                 var currentLength = pathInfo[cell].PathLength;
                 if (cell == to) {
                     found = true;
@@ -41,21 +36,11 @@ namespace StrategicGame.Server {
                             pathInfo.Add(neighbour, new PathNode(cell, lengthFromCurrent));
                             toProcess.Add(new NodeToProcess(neighbour, neighbour.DistanceSquared(to)));
                         }
-                }
+                    }
             }
-            if (!found) {
+            if (!found)
                 cell = pathInfo.Keys.MinBy(c => c.DistanceSquared(to));
-            }
-            var path = new List<PathSegment>();
-            var curr = cell;
-            PathNode node;
-            while ((node = pathInfo[curr]).PathLength > 0) {
-                var prev = node.ComeFrom;
-                path.Add(new PathSegment(prev, curr));
-                curr = prev;
-            };
-            path.Reverse();
-            return path; 
+            return RestorePath(pathInfo, cell);
         }
 
         struct NodeToProcess {
@@ -76,6 +61,30 @@ namespace StrategicGame.Server {
                 ComeFrom = comeFrom;
                 PathLength = pathLength;
             }
+        }
+        
+        static Int2 PopBestNode(List<NodeToProcess> toProcess) {
+            Int2 cell;
+            int minIdx = 0;
+            for (int i = 1; i < toProcess.Count; ++i)
+                if (toProcess[i].EstimatedDistance < toProcess[minIdx].EstimatedDistance)
+                    minIdx = i;
+            cell = toProcess[minIdx].Node;
+            toProcess.RemoveAt(minIdx);
+            return cell;
+        }
+
+        static List<PathSegment> RestorePath(Dictionary<Int2, PathNode> pathInfo, Int2 end) {
+            var path = new List<PathSegment>();
+            var curr = end;
+            PathNode node;
+            while ((node = pathInfo[curr]).PathLength > 0) {
+                var prev = node.ComeFrom;
+                path.Add(new PathSegment(prev, curr));
+                curr = prev;
+            };
+            path.Reverse();
+            return path;
         }
 
         static IEnumerable<Int2> Neighbours(Int2 cell) {

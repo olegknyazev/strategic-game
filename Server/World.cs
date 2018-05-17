@@ -54,7 +54,7 @@ namespace StrategicGame.Server {
                     ++spawned;
                 }
             }
-            _mover = new UnitMover(_grid, PathFinding.Find);
+            _mover = new UnitMover(_grid, Pathfinding.Find);
             _stepsPerSecond = stepsPerSecond;
             _stepTime = 1f / _stepsPerSecond;
         }
