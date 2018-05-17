@@ -18,7 +18,7 @@ namespace StrategicGame.Server {
             return new World(stepsPerSecond);
         }
 
-        public IEnumerable<Status> Status { 
+        public IEnumerable<StatePortion> InstantState {
             get { 
                 yield return new WorldParameters((short)_width, (short)_height);
                 foreach (var unit in _units.Values)
@@ -26,17 +26,16 @@ namespace StrategicGame.Server {
             }
         }
         
-        public List<Status> Simulate(List<Command> commands) {
+        public List<StatePortion> Simulate(List<Command> commands) {
             foreach (var cmd in commands)
-                if (cmd is MoveOrder)
-                    Do((MoveOrder)cmd);
+                if (cmd is SendUnits)
+                    Do((SendUnits)cmd);
             var movedUnits = _mover.Update(_stepTime);
             ++_frame;
-            return
-                movedUnits
-                    .Select(mu => PositionOf(mu.Unit, !mu.StoppedMoving))
-                    .OfType<Status>()
-                    .ToList();
+            return movedUnits
+                .Select(mu => PositionOf(mu.Unit, !mu.StoppedMoving))
+                .OfType<StatePortion>()
+                .ToList();
         }
 
         // TODO use static methods instead of constructor for generation
@@ -59,9 +58,9 @@ namespace StrategicGame.Server {
             _stepTime = 1f / _stepsPerSecond;
         }
 
-        void Do(MoveOrder order) {
-            foreach (var unitId in order.Units)
-                _mover.Move(_units[unitId], order.Destination);
+        void Do(SendUnits cmd) {
+            foreach (var unitId in cmd.Units)
+                _mover.Move(_units[unitId], cmd.Destination);
         }
 
         UnitPosition PositionOf(Unit unit, bool moving = false) {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StrategicGame.Common {
+﻿namespace StrategicGame.Common {
     public struct UnitId {
         internal readonly uint value;
         

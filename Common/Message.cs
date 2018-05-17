@@ -12,30 +12,30 @@ namespace StrategicGame.Common {
         public static Command Deserialize(BinaryReader reader) {
             var type = reader.ReadByte();
             switch (type) {
-                case MessageType.MoveOrder: return new MoveOrder(reader);
+                case MessageType.SendUnits: return new SendUnits(reader);
                 default: throw new Exception("Unknown Command type " + type);
             }
         }
     }
 
     static class MessageType {
-        public const byte MoveOrder = 1;
+        public const byte SendUnits = 1;
         public const byte WorldParameters = 2;
         public const byte UnitPosition = 3;
     }
 
-    public sealed class MoveOrder : Command {
+    public sealed class SendUnits : Command {
         List<UnitId> _units;
 
         public readonly Int2 Destination;
         public IEnumerable<UnitId> Units { get { return _units; } }
 
-        public MoveOrder(IEnumerable<UnitId> units, Int2 destination) {
+        public SendUnits(IEnumerable<UnitId> units, Int2 destination) {
             _units = new List<UnitId>(units);
             Destination = destination;
         }
 
-        internal MoveOrder(BinaryReader reader) {
+        internal SendUnits(BinaryReader reader) {
             int count = reader.ReadUInt16();
             _units = new List<UnitId>(count);
             for (int i = 0; i < count; ++i)
@@ -44,7 +44,7 @@ namespace StrategicGame.Common {
         }
 
         public override void Serialize(BinaryWriter writer) {
-            writer.Write(MessageType.MoveOrder);
+            writer.Write(MessageType.SendUnits);
             writer.Write((ushort)_units.Count);
             foreach (var unitId in _units)
                 writer.Write(unitId.value);
@@ -53,14 +53,14 @@ namespace StrategicGame.Common {
         }
 
         public override string ToString() {
-            return string.Format("[MoveOrder [{0}] -> {1}]",
+            return string.Format("[SendUnits [{0}] -> {1}]",
                 string.Join(", ", _units.Select(x => x.ToString()).ToArray()),
                 Destination);
         }
     }
 
-    public abstract class Status : Message {
-        public static Status Deserialize(BinaryReader reader) {
+    public abstract class StatePortion : Message {
+        public static StatePortion Deserialize(BinaryReader reader) {
             var type = reader.ReadByte();
             switch (type) {
                 case MessageType.WorldParameters: return new WorldParameters(reader);
@@ -70,7 +70,7 @@ namespace StrategicGame.Common {
         }
     }
 
-    public sealed class WorldParameters : Status {
+    public sealed class WorldParameters : StatePortion {
         public readonly short Width;
         public readonly short Height;
 
@@ -95,7 +95,7 @@ namespace StrategicGame.Common {
         }
     }
 
-    public sealed class UnitPosition : Status {
+    public sealed class UnitPosition : StatePortion {
         public readonly UnitId Id;
         public readonly float X;
         public readonly float Y;

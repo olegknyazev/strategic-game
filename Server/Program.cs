@@ -6,7 +6,7 @@ using System.Threading;
 using StrategicGame.Common;
 
 namespace StrategicGame.Server {
-    using RemoteClient = RemoteSide<Command, Status>;
+    using RemoteClient = RemoteSide<Command, StatePortion>;
 
     class Program : IDisposable {
         static readonly IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
@@ -25,9 +25,9 @@ namespace StrategicGame.Server {
                 IntroduceNewClients(acceptor);
                 RemoveDisconnectedClients();
                 FetchClientCommands(clientCommands);
-                var statusMessages = _world.Simulate(clientCommands);
+                var stateDelta = _world.Simulate(clientCommands);
                 clientCommands.Clear();
-                SendStatusToClients(statusMessages);
+                SendToClients(stateDelta);
                 Thread.Sleep(1000 / Consts.STEPS_PER_SECOND);
             }
         }
@@ -42,7 +42,7 @@ namespace StrategicGame.Server {
             while ((client = acceptor.PullClient()) != null) {
                 var remoteClient = new RemoteClient(client, Command.Deserialize);
                 Log("Client connected: {0}", remoteClient.RemoteEndPoint);
-                remoteClient.WriteMessages(_world.Status);
+                remoteClient.WriteMessages(_world.InstantState);
                 _remoteClients.Add(remoteClient);
             }
         }
@@ -62,15 +62,15 @@ namespace StrategicGame.Server {
             foreach (var client in _remoteClients) {
                 Command cmd;
                 while ((cmd = client.ReadMessage()) != null) {
-                    clientCommands.Add(cmd);
                     Log("{0} says: {1}", client.RemoteEndPoint, cmd);
+                    clientCommands.Add(cmd);
                 }
             }
         }
         
-        void SendStatusToClients(List<Status> statusMessages) {
+        void SendToClients(List<StatePortion> state) {
             foreach (var client in _remoteClients)
-                client.WriteMessages(statusMessages);
+                client.WriteMessages(state);
         }
 
         static void Main(string[] args) {

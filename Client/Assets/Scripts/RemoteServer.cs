@@ -7,22 +7,22 @@ using UnityEngine;
 using StrategicGame.Common;
 
 namespace StrategicGame.Client {
-    using RemoteSide = RemoteSide<Status, Command>;
+    using RemoteSide = RemoteSide<StatePortion, Command>;
 
     public class RemoteServer : MonoBehaviour {
         Thread _thread;
-        List<Status> _incomingMessages = new List<Status>();
+        List<StatePortion> _incomingState = new List<StatePortion>();
         List<Command> _outgoingCommands = new List<Command>();
         int _running;
         int _connected;
 
         public bool Connected { get { return _connected == 1; } }
 
-        public List<Status> PullMessages() {
-            List<Status> messages = new List<Status>();
-            lock (_incomingMessages) {
-                messages.AddRange(_incomingMessages);
-                _incomingMessages.Clear();
+        public List<StatePortion> PullState() {
+            List<StatePortion> messages = new List<StatePortion>();
+            lock (_incomingState) {
+                messages.AddRange(_incomingState);
+                _incomingState.Clear();
             }
             return messages;
         }
@@ -57,10 +57,10 @@ namespace StrategicGame.Client {
                 Interlocked.Exchange(ref _connected, 1);
                 var commandsToSend = new List<Command>();
                 while (_running == 1 && remoteSide.Connected) {
-                    Status msg;
-                    while ((msg = remoteSide.ReadMessage()) != null)
-                        lock (_incomingMessages)
-                            _incomingMessages.Add(msg);
+                    StatePortion state;
+                    while ((state = remoteSide.ReadMessage()) != null)
+                        lock (_incomingState)
+                            _incomingState.Add(state);
                     lock (_outgoingCommands) {
                         commandsToSend.AddRange(_outgoingCommands);
                         _outgoingCommands.Clear();
@@ -86,7 +86,7 @@ namespace StrategicGame.Client {
             var client = new TcpClient();
             try {
                 client.Connect(endPoint);
-                var remote = new RemoteSide(client, Status.Deserialize);
+                var remote = new RemoteSide(client, StatePortion.Deserialize);
                 Debug.LogFormat("Connected to {0}", remote.RemoteEndPoint);
                 client = null; // RemoteSide now owns TcpClient (see finally)
                 return remote;

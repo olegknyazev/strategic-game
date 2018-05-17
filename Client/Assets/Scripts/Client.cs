@@ -33,8 +33,8 @@ namespace StrategicGame.Client {
 
         void Update() {
             if (RemoteServer.Connected) {
-                foreach (var msg in RemoteServer.PullMessages())
-                    ProcessMessage(msg);
+                foreach (var state in RemoteServer.PullState())
+                    ProcessState(state);
                 if (ConnectingOverlay)
                     ConnectingOverlay.SetActive(false);
             } else {
@@ -48,14 +48,14 @@ namespace StrategicGame.Client {
             var destinationCell = new Int2(
                 Mathf.RoundToInt(destination.x),
                 Mathf.RoundToInt(destination.z));
-            RemoteServer.PushCommand(new MoveOrder(units.Select(u => u.Id), destinationCell));
+            RemoteServer.PushCommand(new SendUnits(units.Select(u => u.Id), destinationCell));
         }
 
-        void ProcessMessage(Status msg) {
-            if (msg is WorldParameters)
-                RecreateWorld((WorldParameters)msg);
-            else if (msg is UnitPosition)
-                UpdateUnitPosition((UnitPosition)msg);
+        void ProcessState(StatePortion state) {
+            if (state is WorldParameters)
+                RecreateWorld((WorldParameters)state);
+            else if (state is UnitPosition)
+                UpdateUnitPosition((UnitPosition)state);
         }
 
         void RecreateWorld(WorldParameters worldParams) {
@@ -74,8 +74,8 @@ namespace StrategicGame.Client {
             }
         }
 
-        void UpdateUnitPosition(UnitPosition cmd) {
-            _world.UpdateUnitPosition(cmd);
+        void UpdateUnitPosition(UnitPosition state) {
+            _world.UpdateUnitPosition(state);
         }
     }
 }

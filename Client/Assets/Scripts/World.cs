@@ -30,12 +30,14 @@ namespace StrategicGame.Client {
                         _cellsRoot);
         }
 
-        public void UpdateUnitPosition(UnitPosition cmd) {
+        public void UpdateUnitPosition(UnitPosition unitPosition) {
             bool created;
-            var unit = GetOrInstantiate(cmd.Id, out created);
+            var unit = GetOrInstantiate(unitPosition.Id, out created);
             if (unit.Movement) {
-                unit.Movement.SetPosition(new Vector3(cmd.X, 0, cmd.Y), interpolate: !created);
-                unit.Movement.Moving = cmd.Moving;
+                unit.Movement.Moving = unitPosition.Moving;
+                unit.Movement.SetPosition(
+                    new Vector3(unitPosition.X, 0, unitPosition.Y),
+                    interpolate: !created);
             }
         }
 
