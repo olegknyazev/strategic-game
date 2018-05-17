@@ -4,7 +4,7 @@ A prototype of a client-server strategic game. The client is implemented in Unit
 On startup, the server generates a small world of a random size and populates it by some units. The only action that user can do with this world is to select some units and send them. All clients have equal 'rights' in control so there is no 'my' or 'your' units.
 
 ## Running
-1. Get a build from here.
+1. Get a build from [here](http://oleg-knyazev.com/wp-content/uploads/2018/05/StrategicGame.zip).
 2. Run ClientGame.Server.exe and any number of Client.exe on a single computer (in any order).
 
 Both the server and the client are capable to reconnect, so you can close and restart them as you wish.
