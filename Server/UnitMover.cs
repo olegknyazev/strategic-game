@@ -88,6 +88,16 @@ namespace StrategicGame.Server {
 
         public delegate Path FindPath(Grid grid, Int2 from, Int2 to);
 
+        public struct MovedUnit {
+            public readonly Unit Unit;
+            public readonly bool StoppedMoving;
+
+            public MovedUnit(Unit unit, bool stoppedMoving) {
+                Unit = unit;
+                StoppedMoving = stoppedMoving;
+            }
+        }
+
         public UnitMover(Grid grid, FindPath findPath) {
             _grid = grid;
             _findPath = findPath;
@@ -104,14 +114,14 @@ namespace StrategicGame.Server {
         }
 
         // Returns a set of units moved since last Update().
-        public HashSet<Unit> Update(float dt) {
+        public HashSet<MovedUnit> Update(float dt) {
             var toRemove = new List<Unit>();
-            var movedUnits = new HashSet<Unit>();
+            var movedUnits = new HashSet<MovedUnit>();
             foreach (var movement in _movingUnits.Values) {
                 movement.Update(dt);
                 if (movement.Finished)
                     toRemove.Add(movement.Unit);
-                movedUnits.Add(movement.Unit);
+                movedUnits.Add(new MovedUnit(movement.Unit, movement.Finished));
             }
             foreach (var unit in toRemove)
                 _movingUnits.Remove(unit);

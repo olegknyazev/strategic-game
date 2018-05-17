@@ -33,8 +33,10 @@ namespace StrategicGame.Client {
         public void UpdateUnitPosition(UnitPosition cmd) {
             bool created;
             var unit = GetOrInstantiate(cmd.Id, out created);
-            if (unit.Movement)
+            if (unit.Movement) {
                 unit.Movement.SetPosition(new Vector3(cmd.X, 0, cmd.Y), interpolate: !created);
+                unit.Movement.Moving = cmd.Moving;
+            }
         }
 
         Unit GetOrInstantiate(UnitId id, out bool created) {

@@ -9,6 +9,6 @@ namespace StrategicGame.Server {
 
         public UnitId Id { get; }
         public Float2 Position { get; set; }
-        public float Speed { get { return 8f; } }
+        public float Speed { get { return 7f; } }
     }
 }

@@ -32,7 +32,11 @@ namespace StrategicGame.Server {
                     Do((MoveOrder)cmd);
             var movedUnits = _mover.Update(_stepTime);
             ++_frame;
-            return movedUnits.Select(PositionOf).OfType<Status>().ToList();
+            return
+                movedUnits
+                    .Select(mu => PositionOf(mu.Unit, !mu.StoppedMoving))
+                    .OfType<Status>()
+                    .ToList();
         }
 
         // TODO use static methods instead of constructor for generation
@@ -57,8 +61,8 @@ namespace StrategicGame.Server {
                 _mover.Move(_units[unitId], order.Destination);
         }
 
-        UnitPosition PositionOf(Unit unit) {
-            return new UnitPosition(unit.Id, unit.Position.X, unit.Position.Y, _frame);
+        UnitPosition PositionOf(Unit unit, bool moving = false) {
+            return new UnitPosition(unit.Id, unit.Position.X, unit.Position.Y, _frame, moving);
         }
     }
 }

@@ -99,12 +99,14 @@ namespace StrategicGame.Common {
         public readonly float X;
         public readonly float Y;
         public readonly uint Frame;
+        public readonly bool Moving;
         
-        public UnitPosition(UnitId id, float x, float y, uint frame) {
+        public UnitPosition(UnitId id, float x, float y, uint frame, bool moving) {
             Id = id;
             X = x;
             Y = y;
             Frame = frame;
+            Moving = moving;
         }
         
         internal UnitPosition(BinaryReader reader) {
@@ -112,6 +114,7 @@ namespace StrategicGame.Common {
             X = reader.ReadSingle();
             Y = reader.ReadSingle();
             Frame = reader.ReadUInt32();
+            Moving = reader.ReadBoolean();
         }
         
         public override void Serialize(BinaryWriter writer) {
@@ -120,10 +123,14 @@ namespace StrategicGame.Common {
             writer.Write(X);
             writer.Write(Y);
             writer.Write(Frame);
+            writer.Write(Moving);
         }
 
         public override string ToString() {
-            return string.Format("[UnitPosition {0} ({1}, {2}) @ {3}]", Id, X, Y, Frame);
+            return string.Format(
+                "[UnitPosition {0} ({1}, {2}) @ {3}{4}]",
+                Id, X, Y, Frame,
+                Moving ? " moving" : "");
         }
     }
 }
