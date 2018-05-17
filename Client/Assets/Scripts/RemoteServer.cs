@@ -49,7 +49,6 @@ namespace StrategicGame.Client {
                         Thread.Sleep(1000);
                 }
                 Interlocked.Exchange(ref _connected, 1);
-                var commandsToSend = new List<Command>();
                 while (_running == 1 && remoteSide.Connected) {
                     StatePortion state;
                     while ((state = remoteSide.ReadMessage()) != null)
