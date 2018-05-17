@@ -45,7 +45,10 @@ namespace StrategicGame.Client {
         }
 
         static Quaternion FromToRotation(Vector3 from, Vector3 to) {
-            return Quaternion.LookRotation(to - from, Vector3.up);
+            var delta = to - from;
+            return delta.sqrMagnitude > 0.001f 
+                ? Quaternion.LookRotation(delta, Vector3.up)
+                : Quaternion.identity;
         }
     }
 }
