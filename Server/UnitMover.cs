@@ -8,7 +8,50 @@ namespace StrategicGame.Server {
     class UnitMover {
         Grid _grid;
         FindPath _findPath;
+        Dictionary<Unit, MovementState> _movingUnits = new Dictionary<Unit, MovementState>();
+        
+        public delegate Path FindPath(Pathfinding.OccpiedPred occupied, Int2 from, Int2 to);
 
+        public struct MovedUnit {
+            public readonly Unit Unit;
+            public readonly bool StoppedMoving;
+
+            public MovedUnit(Unit unit, bool stoppedMoving) {
+                Unit = unit;
+                StoppedMoving = stoppedMoving;
+            }
+        }
+
+        public UnitMover(Grid grid, FindPath findPath) {
+            _grid = grid;
+            _findPath = findPath;
+        }
+
+        public void Move(Unit unit, Int2 destination) {
+            MovementState state;
+            if (_movingUnits.TryGetValue(unit, out state)) {
+                state.SwitchDestination(destination);
+                return;
+            }
+            state = new MovementState(_grid, unit, destination, _findPath);
+            _movingUnits.Add(unit, state);
+        }
+
+        // Returns a set of units moved since last Update().
+        public HashSet<MovedUnit> Update(float dt) {
+            var toRemove = new List<Unit>();
+            var movedUnits = new HashSet<MovedUnit>();
+            foreach (var movement in _movingUnits.Values) {
+                movement.Update(dt);
+                if (movement.Finished)
+                    toRemove.Add(movement.Unit);
+                movedUnits.Add(new MovedUnit(movement.Unit, movement.Finished));
+            }
+            foreach (var unit in toRemove)
+                _movingUnits.Remove(unit);
+            return movedUnits;
+        }
+        
         class MovementState {
             Grid _grid;
             FindPath _findPath;
@@ -16,7 +59,6 @@ namespace StrategicGame.Server {
             Int2 _position;
             Int2 _nextPosition;
             Int2 _destination;
-            Path _path;
             float _progress;
 
             public MovementState(Grid grid, Unit unit, Int2 destination, FindPath findPath) {
@@ -69,10 +111,10 @@ namespace StrategicGame.Server {
                 var path = _findPath(CellOccupied, position, destination);
                 if (path.Count == 0)
                     return position;
-                return CellTowardsDirect(position, path[0].End);
+                return CellTowardsDirection(position, path[0].End);
             }
 
-            static Int2 CellTowardsDirect(Int2 position, Int2 destination) {
+            static Int2 CellTowardsDirection(Int2 position, Int2 destination) {
                 if (position == destination)
                     return position;
                 if (position.X > destination.X)
@@ -86,50 +128,6 @@ namespace StrategicGame.Server {
                 else
                     return position;
             }
-        }
-
-        Dictionary<Unit, MovementState> _movingUnits = new Dictionary<Unit, MovementState>();
-        
-        public delegate Path FindPath(Pathfinding.OccpiedPred occupied, Int2 from, Int2 to);
-
-        public struct MovedUnit {
-            public readonly Unit Unit;
-            public readonly bool StoppedMoving;
-
-            public MovedUnit(Unit unit, bool stoppedMoving) {
-                Unit = unit;
-                StoppedMoving = stoppedMoving;
-            }
-        }
-
-        public UnitMover(Grid grid, FindPath findPath) {
-            _grid = grid;
-            _findPath = findPath;
-        }
-
-        public void Move(Unit unit, Int2 destination) {
-            MovementState state;
-            if (_movingUnits.TryGetValue(unit, out state)) {
-                state.SwitchDestination(destination);
-                return;
-            }
-            state = new MovementState(_grid, unit, destination, _findPath);
-            _movingUnits.Add(unit, state);
-        }
-
-        // Returns a set of units moved since last Update().
-        public HashSet<MovedUnit> Update(float dt) {
-            var toRemove = new List<Unit>();
-            var movedUnits = new HashSet<MovedUnit>();
-            foreach (var movement in _movingUnits.Values) {
-                movement.Update(dt);
-                if (movement.Finished)
-                    toRemove.Add(movement.Unit);
-                movedUnits.Add(new MovedUnit(movement.Unit, movement.Finished));
-            }
-            foreach (var unit in toRemove)
-                _movingUnits.Remove(unit);
-            return movedUnits;
         }
     }
 }
