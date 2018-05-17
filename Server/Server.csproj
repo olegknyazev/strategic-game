@@ -47,6 +47,7 @@
     <Compile Include="Grid.cs" />
     <Compile Include="PathFinding.cs" />
     <Compile Include="UnitMover.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>

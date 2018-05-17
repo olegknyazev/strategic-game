@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using StrategicGame.Common;
 
 namespace StrategicGame.Server {
@@ -46,8 +45,10 @@ namespace StrategicGame.Server {
                         if (_nextPosition != _position) {
                             _grid[_unit] = _nextPosition;
                             _progress = 0;
-                        } else
+                        } else { // if we haven't reached destination, it's unreachable
+                            _destination = _position;
                             break;
+                        }
                     }
                     if (_progress < 1) {
                         var drain = Math.Min(movementRemains, 1 - _progress);
@@ -61,7 +62,9 @@ namespace StrategicGame.Server {
             Int2 CellTowards(Int2 position, Int2 destination) {
                 if (position == destination)
                     return position;
-                var path = _findPath(_grid, position, destination, 3);
+                var path = _findPath(_grid, position, destination);
+                if (path.Count == 0)
+                    return position;
                 return CellTowardsDirect(position, path[0].End);
             }
 
@@ -83,7 +86,7 @@ namespace StrategicGame.Server {
 
         Dictionary<Unit, MovementState> _movingUnits = new Dictionary<Unit, MovementState>();
 
-        public delegate Path FindPath(Grid grid, Int2 from, Int2 to, int maxLength = -1);
+        public delegate Path FindPath(Grid grid, Int2 from, Int2 to);
 
         public UnitMover(Grid grid, FindPath findPath) {
             _grid = grid;

@@ -13,9 +13,10 @@ namespace StrategicGame.Server {
     }
 
     static class PathFinding {
-        public static List<PathSegment> Find(Grid grid, Int2 from, Int2 to, int maxLength = -1) {
+        public static List<PathSegment> Find(Grid grid, Int2 from, Int2 to) {
             var pathInfo = new Dictionary<Int2, PathNode> {{ from, new PathNode(from) }};
             var toProcess = new List<NodeToProcess> { new NodeToProcess(from, 0) };
+            bool found = false;
             Int2 cell = from;
             while (toProcess.Count > 0) {
                 int minIdx = 0;
@@ -25,11 +26,13 @@ namespace StrategicGame.Server {
                 cell = toProcess[minIdx].Node;
                 toProcess.RemoveAt(minIdx);
                 var currentLength = pathInfo[cell].PathLength;
-                if (cell == to || currentLength == maxLength)
+                if (cell == to) {
+                    found = true;
                     break;
+                }
                 var lengthFromCurrent = currentLength + 1;
                 foreach (var neighbour in Neighbours(cell))
-                    if (grid[neighbour] == null) {
+                    if (grid.Contains(neighbour) && grid[neighbour] == null) {
                         PathNode pathNode;
                         if (pathInfo.TryGetValue(neighbour, out pathNode)) {
                             if (lengthFromCurrent < pathNode.PathLength)
@@ -39,6 +42,9 @@ namespace StrategicGame.Server {
                             toProcess.Add(new NodeToProcess(neighbour, neighbour.DistanceSquared(to)));
                         }
                 }
+            }
+            if (!found) {
+                cell = pathInfo.Keys.MinBy(c => c.DistanceSquared(to));
             }
             var path = new List<PathSegment>();
             var curr = cell;
