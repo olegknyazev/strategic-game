@@ -1,7 +1,7 @@
-﻿using StrategicGame.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using StrategicGame.Common;
 
 namespace StrategicGame.Server {
     class World {

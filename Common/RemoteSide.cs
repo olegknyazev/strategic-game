@@ -12,7 +12,6 @@ namespace StrategicGame.Common {
 
         TcpClient _client;
         NetworkStream _stream;
-        ILogger _logger;
         byte[] _readBuffer = new byte[4096];
         byte[] _writeBuffer = new byte[4096];
         BinaryReader _reader;
@@ -21,10 +20,9 @@ namespace StrategicGame.Common {
         int _expectedLength = HEADER_SIZE;
         Func<BinaryReader, IncomingT> _deserialize;
 
-        public RemoteSide(TcpClient client, Func<BinaryReader, IncomingT> deserialize, ILogger logger) {
+        public RemoteSide(TcpClient client, Func<BinaryReader, IncomingT> deserialize) {
             _client = client;
             _stream = client.GetStream();
-            _logger = logger;
             _reader = new BinaryReader(new MemoryStream(_readBuffer));
             _writer = new BinaryWriter(new MemoryStream(_writeBuffer));
             _deserialize = deserialize;
@@ -92,8 +90,6 @@ namespace StrategicGame.Common {
                 var socketException = ex.InnerException as SocketException;
                 if (socketException == null)
                     throw;
-                if (socketException.SocketErrorCode != SocketError.ConnectionAborted)
-                    _logger.Log("Socket exception on client {0}: {1}", RemoteEndPoint, socketException);
                 return true;
             }
         }

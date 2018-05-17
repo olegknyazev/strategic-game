@@ -39,7 +39,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ILogger.cs" />
     <Compile Include="Float2.cs" />
     <Compile Include="Consts.cs" />
     <Compile Include="UnitId.cs" />

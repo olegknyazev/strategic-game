@@ -51,7 +51,7 @@ namespace StrategicGame.Client {
                 var endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
                 RemoteSide remoteSide = null;
                 while (_running == 1 && remoteSide == null) {
-                    if ((remoteSide = TryConnect(endPoint, UnityConsoleLogger.Instance)) == null)
+                    if ((remoteSide = TryConnect(endPoint)) == null)
                         Thread.Sleep(1000);
                 };
                 Interlocked.Exchange(ref _connected, 1);
@@ -82,12 +82,12 @@ namespace StrategicGame.Client {
             }
         }
 
-        static RemoteSide TryConnect(IPEndPoint endPoint, Common.ILogger logger) {
+        static RemoteSide TryConnect(IPEndPoint endPoint) {
             var client = new TcpClient();
             try {
                 client.Connect(endPoint);
-                var remote = new RemoteSide(client, Status.Deserialize, logger);
-                logger.Log("Connected to {0}", remote.RemoteEndPoint);
+                var remote = new RemoteSide(client, Status.Deserialize);
+                Debug.LogFormat("Connected to {0}", remote.RemoteEndPoint);
                 client = null; // RemoteSide now owns TcpClient (see finally)
                 return remote;
             } catch (SocketException ex) {
