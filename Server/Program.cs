@@ -26,17 +26,11 @@ namespace StrategicGame.Server {
             var clientCommands = new List<Command>();
             while (true) {
                 IntroduceNewClients(acceptor);
-                foreach (var client in _remoteClients) {
-                    Command cmd;
-                    while ((cmd = client.ReadMessage()) != null) {
-                        clientCommands.Add(cmd);
-                        _logger.Log("{0} says {1}", client.RemoteEndPoint, cmd);
-                    }
-                }
+                RemoveDisconnectedClients();
+                FetchClientCommands(clientCommands);
                 var statusMessages = _world.Simulate(clientCommands);
                 clientCommands.Clear();
-                foreach (var client in _remoteClients)
-                    client.WriteMessages(statusMessages);
+                SendStatusToClients(statusMessages);
                 Thread.Sleep(1000 / Consts.STEPS_PER_SECOND);
             }
         }
@@ -54,6 +48,32 @@ namespace StrategicGame.Server {
                 remoteClient.WriteMessages(_world.Status);
                 _remoteClients.Add(remoteClient);
             }
+        }
+        
+        void RemoveDisconnectedClients() {
+            for (int i = _remoteClients.Count - 1; i >= 0; --i) {
+                var client = _remoteClients[i];
+                if (!client.Connected) {
+                    _logger.Log("Client disconnected: {0}", client.RemoteEndPoint);
+                    client.Dispose();
+                    _remoteClients.RemoveAt(i);
+                }
+            }
+        }
+        
+        void FetchClientCommands(List<Command> clientCommands) {
+            foreach (var client in _remoteClients) {
+                Command cmd;
+                while ((cmd = client.ReadMessage()) != null) {
+                    clientCommands.Add(cmd);
+                    _logger.Log("{0} says {1}", client.RemoteEndPoint, cmd);
+                }
+            }
+        }
+        
+        void SendStatusToClients(List<Status> statusMessages) {
+            foreach (var client in _remoteClients)
+                client.WriteMessages(statusMessages);
         }
 
         static void Main(string[] args) {

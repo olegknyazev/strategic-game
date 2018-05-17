@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -12,7 +13,7 @@ namespace StrategicGame.Common {
             var type = reader.ReadByte();
             switch (type) {
                 case MessageType.MoveOrder: return new MoveOrder(reader);
-                default: throw new InvalidDataException("Unknown Command type " + type);
+                default: throw new Exception("Unknown Command type " + type);
             }
         }
     }
@@ -64,7 +65,7 @@ namespace StrategicGame.Common {
             switch (type) {
                 case MessageType.WorldParameters: return new WorldParameters(reader);
                 case MessageType.UnitPosition: return new UnitPosition(reader);
-                default: throw new InvalidDataException("Unknown Status type " + type);
+                default: throw new Exception("Unknown Status type " + type);
             }
         }
     }

@@ -32,13 +32,18 @@ namespace StrategicGame.Common {
 
         public EndPoint RemoteEndPoint { get { return _client.Client.RemoteEndPoint; } }
 
+        public bool Connected { get { return _client.Client.Connected; } }
+
         public IncomingT ReadMessage() {
             if (!_stream.DataAvailable)
                 return null;
             IncomingT result = null;
             int bytesRead = 0;
             do {
-                bytesRead = _stream.Read(_readBuffer, _readPosition, _expectedLength - _readPosition);
+                if (DisconnectOnSocketError(() => {
+                        bytesRead = _stream.Read(_readBuffer, _readPosition, _expectedLength - _readPosition);
+                    }))
+                    return null;
                 _readPosition += bytesRead;
                 if (_readPosition >= HEADER_SIZE) {
                     if (_expectedLength == HEADER_SIZE) {
@@ -62,7 +67,8 @@ namespace StrategicGame.Common {
             var length = (ushort)_writer.BaseStream.Position;
             _writer.Seek(0, SeekOrigin.Begin);
             _writer.Write(length);
-            _stream.Write(_writeBuffer, 0, length);
+            DisconnectOnSocketError(() => 
+                _stream.Write(_writeBuffer, 0, length));
         }
 
         public void WriteMessages(IEnumerable<OutgoingT> msgs) {
@@ -77,5 +83,19 @@ namespace StrategicGame.Common {
         }
 
         protected TcpClient Client { get { return _client; } }
+
+        bool DisconnectOnSocketError(Action a) {
+            try {
+                a();
+                return false;
+            } catch (IOException ex) {
+                var socketException = ex.InnerException as SocketException;
+                if (socketException == null)
+                    throw;
+                if (socketException.SocketErrorCode != SocketError.ConnectionAborted)
+                    _logger.Log("Socket exception on client {0}: {1}", RemoteEndPoint, socketException);
+                return true;
+            }
+        }
     }
 }

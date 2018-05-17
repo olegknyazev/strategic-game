@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Assertions;
 using StrategicGame.Common;
-using System;
 
 namespace StrategicGame.Client {
     public class Client : MonoBehaviour {
@@ -42,7 +41,6 @@ namespace StrategicGame.Client {
         }
 
         void ProcessMessage(Status msg) {
-            Debug.Log("PROCESS: " + msg);
             if (msg is WorldParameters)
                 RecreateWorld((WorldParameters)msg);
             else if (msg is UnitPosition)
