@@ -15,9 +15,12 @@ namespace StrategicGame.Server {
         uint _frame;
         
         public static World RandomWorld(int stepsPerSecond) {
-            return new World(stepsPerSecond);
+            var rnd = new Random();
+            var world = new World(rnd.Next(7, 12), rnd.Next(7, 12), stepsPerSecond);
+            world.SpawnRandomUnits(rnd.Next(3, 5), rnd);
+            return world;
         }
-
+        
         public IEnumerable<StatePortion> InstantState {
             get { 
                 yield return new WorldParameters((short)_width, (short)_height);
@@ -37,15 +40,19 @@ namespace StrategicGame.Server {
                 .OfType<StatePortion>()
                 .ToList();
         }
+        
+        World(int width, int height, int stepsPerSecond) {
+            _width = width;
+            _height = height;
+            _grid = new Grid(width, height);
+            _mover = new UnitMover(_grid, Pathfinding.Find);
+            _stepsPerSecond = stepsPerSecond;
+            _stepTime = 1f / _stepsPerSecond;
+        }
 
-        // TODO use static methods instead of constructor for generation
-        World(int stepsPerSecond) {
-            var r = new Random();
-            _width = r.Next(7, 12);
-            _height = r.Next(7, 12);
-            _grid = new Grid(_width, _height);
-            for (int spawned = 0, count = r.Next(20, 20); spawned < count;) {
-                var pos = new Int2(r.Next(0, _width - 1), r.Next(0, _height - 1));
+        void SpawnRandomUnits(int count, Random rnd) {
+            for (int spawned = 0; spawned < count;) {
+                var pos = new Int2(rnd.Next(0, _width - 1), rnd.Next(0, _height - 1));
                 if (_grid[pos] == null) {
                     var unit = new Unit(new Float2(pos));
                     _units.Add(unit.Id, unit);
@@ -53,9 +60,6 @@ namespace StrategicGame.Server {
                     ++spawned;
                 }
             }
-            _mover = new UnitMover(_grid, Pathfinding.Find);
-            _stepsPerSecond = stepsPerSecond;
-            _stepTime = 1f / _stepsPerSecond;
         }
 
         void Do(SendUnits cmd) {
@@ -65,6 +69,10 @@ namespace StrategicGame.Server {
 
         UnitPosition PositionOf(Unit unit, bool moving = false) {
             return new UnitPosition(unit.Id, unit.Position.X, unit.Position.Y, _frame, moving);
+        }
+
+        public override string ToString() {
+            return string.Format("[World {0} x {1}, {2} units]", _width, _height, _grid.UnitCount);
         }
     }
 }

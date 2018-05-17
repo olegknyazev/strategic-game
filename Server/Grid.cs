@@ -13,6 +13,7 @@ namespace StrategicGame.Server {
 
         public int Width { get; }
         public int Height { get; }
+        public int UnitCount { get { return _unitByPosition.Count; } }
 
         public Unit this[int x, int y] {
             get { return this[new Int2(x, y)]; }

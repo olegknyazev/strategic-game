@@ -18,6 +18,7 @@ namespace StrategicGame.Server {
         public Server(Action<string> log) {
             _world = World.RandomWorld(Consts.STEPS_PER_SECOND);
             _log = log;
+            Log("Generated {0}", _world);
         }
 
         public void Execute() {
