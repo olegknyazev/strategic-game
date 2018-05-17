@@ -10,7 +10,6 @@ namespace StrategicGame.Server {
     using RemoteClient = RemoteSide<Command, Status>;
 
     class Program : IDisposable {
-        const int STEPS_PER_SECOND = 20;
         static readonly IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
 
         ILogger _logger;
@@ -19,7 +18,7 @@ namespace StrategicGame.Server {
 
         public Program(ILogger logger) {
             _logger = logger;
-            _world = World.RandomWorld(STEPS_PER_SECOND);
+            _world = World.RandomWorld(Consts.STEPS_PER_SECOND);
         }
 
         public void Execute() {
@@ -38,7 +37,7 @@ namespace StrategicGame.Server {
                 clientCommands.Clear();
                 foreach (var client in _remoteClients)
                     client.WriteMessages(statusMessages);
-                Thread.Sleep(10);
+                Thread.Sleep(1000 / Consts.STEPS_PER_SECOND);
             }
         }
 

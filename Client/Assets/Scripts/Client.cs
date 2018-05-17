@@ -61,8 +61,8 @@ namespace StrategicGame.Client {
             Camera.transform.LookAt(_world.Center);
         }
 
-        void UpdateUnitPosition(UnitPosition unitParams) {
-            _world.UpdateUnitPosition(unitParams);
+        void UpdateUnitPosition(UnitPosition cmd) {
+            _world.UpdateUnitPosition(cmd);
         }
     }
 }

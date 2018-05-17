@@ -30,17 +30,21 @@ namespace StrategicGame.Client {
                         _cellsRoot);
         }
 
-        public void UpdateUnitPosition(UnitPosition unitParams) {
-            var unit = GetOrInstantiate(unitParams.Id);
-            unit.transform.localPosition = new Vector3(unitParams.X, 0, unitParams.Y);
+        public void UpdateUnitPosition(UnitPosition cmd) {
+            bool created;
+            var unit = GetOrInstantiate(cmd.Id, out created);
+            if (unit.Movement)
+                unit.Movement.SetPosition(new Vector3(cmd.X, 0, cmd.Y), interpolate: !created);
         }
 
-        Unit GetOrInstantiate(UnitId id) {
+        Unit GetOrInstantiate(UnitId id, out bool created) {
+            created = false;
             Unit unit;
             if (!_units.TryGetValue(id, out unit)) {
                 unit = GameObject.Instantiate(UnitPrefab, _unitsRoot);
                 unit.Initialize(id);
                 _units.Add(id, unit);
+                created = true;
             }
             return unit;
         }
