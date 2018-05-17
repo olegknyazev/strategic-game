@@ -30,7 +30,7 @@ namespace StrategicGame.Server {
 
             public Unit Unit { get { return _unit; } }
 
-            public bool Finished { get { return _position == _destination && _progress >= 1; } }
+            public bool Finished { get { return _position == _destination; } }
 
             public void SwitchDestination(Int2 to) {
                 _destination = to;
