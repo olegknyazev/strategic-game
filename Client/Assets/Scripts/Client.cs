@@ -7,6 +7,7 @@ namespace StrategicGame.Client {
         public RemoteServer RemoteServer;
         public PlayerControls PlayerControls;
         public Camera Camera;
+        public GameObject ConnectingOverlay;
 
         [Header("Prefabs")]
         public World WorldPrefab;
@@ -29,8 +30,16 @@ namespace StrategicGame.Client {
         }
 
         void Update() {
-            foreach (var msg in RemoteServer.PullMessages())
-                ProcessMessage(msg);
+            if (RemoteServer.Connected) {
+                foreach (var msg in RemoteServer.PullMessages())
+                    ProcessMessage(msg);
+                if (ConnectingOverlay)
+                    ConnectingOverlay.SetActive(false);
+            } else {
+                DestroyWorld();
+                if (ConnectingOverlay)
+                    ConnectingOverlay.SetActive(true);
+            }
         }
         
         void OnMoveOrder(Unit unit, Vector3 destination) {
@@ -48,15 +57,19 @@ namespace StrategicGame.Client {
         }
 
         void RecreateWorld(WorldParameters worldParams) {
-            if (_world) {
-                DestroyImmediate(_world.gameObject);
-                _world = null;
-            }
+            DestroyWorld();
             _world = GameObject.Instantiate(WorldPrefab, transform);
             _world.name = "World";
             _world.Initialize(worldParams);
             Camera.transform.position = _world.Center + Vector3.up * 10;
             Camera.transform.LookAt(_world.Center);
+        }
+
+        void DestroyWorld() {
+            if (_world) {
+                DestroyImmediate(_world.gameObject);
+                _world = null;
+            }
         }
 
         void UpdateUnitPosition(UnitPosition cmd) {
