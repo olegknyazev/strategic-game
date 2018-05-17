@@ -11,30 +11,24 @@ namespace StrategicGame.Client {
 
     public class RemoteServer : MonoBehaviour {
         Thread _thread;
-        List<StatePortion> _incomingState = new List<StatePortion>();
-        List<Command> _outgoingCommands = new List<Command>();
+        ConcurrentQueue<StatePortion> _incomingState = new ConcurrentQueue<StatePortion>();
+        ConcurrentQueue<Command> _outgoingCommands = new ConcurrentQueue<Command>();
         int _running;
         int _connected;
 
         public bool Connected { get { return _connected == 1; } }
 
-        public List<StatePortion> PullState() {
-            List<StatePortion> messages = new List<StatePortion>();
-            lock (_incomingState) {
-                messages.AddRange(_incomingState);
-                _incomingState.Clear();
-            }
-            return messages;
+        public StatePortion PullState() {
+            return _incomingState.Dequeue();
         }
 
         public void PushCommand(Command command) {
-            lock (_outgoingCommands)
-                _outgoingCommands.Add(command);
+            _outgoingCommands.Enqueue(command);
         }
 
         void Start() {
             _running = 1;
-            _thread = new Thread(() => ShutdownOnError(RemoteThread));
+            _thread = new Thread(() => ShutdownOnError(NetworkThread));
             _thread.Start();
         }
 
@@ -46,7 +40,7 @@ namespace StrategicGame.Client {
             }
         }
 
-        void RemoteThread() {
+        void NetworkThread() {
             while (_running == 1) {
                 var endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
                 RemoteSide remoteSide = null;
@@ -59,15 +53,11 @@ namespace StrategicGame.Client {
                 while (_running == 1 && remoteSide.Connected) {
                     StatePortion state;
                     while ((state = remoteSide.ReadMessage()) != null)
-                        lock (_incomingState)
-                            _incomingState.Add(state);
-                    lock (_outgoingCommands) {
-                        commandsToSend.AddRange(_outgoingCommands);
-                        _outgoingCommands.Clear();
-                    }
-                    remoteSide.WriteMessages(commandsToSend);
-                    commandsToSend.Clear();
-                    Thread.Sleep(10);
+                        _incomingState.Enqueue(state);
+                    Command cmd;
+                    while ((cmd = _outgoingCommands.Dequeue()) != null)
+                        remoteSide.WriteMessage(cmd);
+                    Thread.Sleep(1);
                 }
                 Interlocked.Exchange(ref _connected, 0);
             };

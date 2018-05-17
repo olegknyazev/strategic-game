@@ -33,7 +33,8 @@ namespace StrategicGame.Client {
 
         void Update() {
             if (RemoteServer.Connected) {
-                foreach (var state in RemoteServer.PullState())
+                StatePortion state;
+                while ((state = RemoteServer.PullState()) != null)
                     ProcessState(state);
                 if (ConnectingOverlay)
                     ConnectingOverlay.SetActive(false);

@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Float2.cs" />
     <Compile Include="Consts.cs" />
+    <Compile Include="ConcurrentQueue.cs" />
     <Compile Include="UnitId.cs" />
     <Compile Include="Int2.cs" />
     <Compile Include="Message.cs" />

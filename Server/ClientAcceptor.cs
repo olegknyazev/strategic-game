@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using StrategicGame.Common;
 
 namespace StrategicGame.Server {
     class ClientAcceptor {
         Thread _thread;
-        Queue<TcpClient> _pendingClients = new Queue<TcpClient>();
+        ConcurrentQueue<TcpClient> _pendingClients = new ConcurrentQueue<TcpClient>();
 
         public ClientAcceptor(IPEndPoint endPoint) {
             _thread = new Thread(() => AcceptClients(endPoint));
@@ -14,21 +14,14 @@ namespace StrategicGame.Server {
         }
 
         public TcpClient PullClient() {
-            lock (_pendingClients) {
-                return _pendingClients.Count > 0
-                    ? _pendingClients.Dequeue()
-                    : null;
-            }
+            return _pendingClients.Dequeue();
         }
 
         void AcceptClients(IPEndPoint endPoint) {
             var listener = new TcpListener(endPoint);
             listener.Start();
-            while (true) {
-                var client = listener.AcceptTcpClient();
-                lock (_pendingClients)
-                    _pendingClients.Enqueue(client);
-            }
+            while (true)
+                _pendingClients.Enqueue(listener.AcceptTcpClient());
         }
     }
 }
