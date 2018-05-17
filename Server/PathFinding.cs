@@ -13,7 +13,9 @@ namespace StrategicGame.Server {
     }
 
     static class Pathfinding {
-        public static List<PathSegment> Find(Grid grid, Int2 from, Int2 to) {
+        public delegate bool OccpiedPred(Int2 cell);
+
+        public static List<PathSegment> Find(OccpiedPred occupied, Int2 from, Int2 to) {
             var pathInfo = new Dictionary<Int2, PathNode> { { from, new PathNode(from) } };
             var toProcess = new List<NodeToProcess> { new NodeToProcess(from, 0) };
             bool found = false;
@@ -27,7 +29,7 @@ namespace StrategicGame.Server {
                 }
                 var lengthFromCurrent = currentLength + 1;
                 foreach (var neighbour in Neighbours(cell))
-                    if (grid.Contains(neighbour) && grid[neighbour] == null) {
+                    if (!occupied(neighbour)) {
                         PathNode pathNode;
                         if (pathInfo.TryGetValue(neighbour, out pathNode)) {
                             if (lengthFromCurrent < pathNode.PathLength)

@@ -58,11 +58,15 @@ namespace StrategicGame.Server {
                     }
                 };
             }
+            
+            bool CellOccupied(Int2 cell) {
+                return !_grid.Contains(cell) || _grid[cell] != null;
+            }
 
             Int2 CellTowards(Int2 position, Int2 destination) {
                 if (position == destination)
                     return position;
-                var path = _findPath(_grid, position, destination);
+                var path = _findPath(CellOccupied, position, destination);
                 if (path.Count == 0)
                     return position;
                 return CellTowardsDirect(position, path[0].End);
@@ -85,8 +89,8 @@ namespace StrategicGame.Server {
         }
 
         Dictionary<Unit, MovementState> _movingUnits = new Dictionary<Unit, MovementState>();
-
-        public delegate Path FindPath(Grid grid, Int2 from, Int2 to);
+        
+        public delegate Path FindPath(Pathfinding.OccpiedPred occupied, Int2 from, Int2 to);
 
         public struct MovedUnit {
             public readonly Unit Unit;
