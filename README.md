@@ -5,7 +5,7 @@ On startup, the server generates a small world of a random size and populates it
 
 ## Running
 1. Get a build from here.
-2. Run Server.exe and any number of Client.exe on a single computer (in any order).
+2. Run ClientGame.Server.exe and any number of Client.exe on a single computer (in any order).
 
 Both the server and the client are capable to reconnect, so you can close and restart them as you wish.
 
