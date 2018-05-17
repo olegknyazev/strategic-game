@@ -9,11 +9,12 @@ namespace StrategicGame.Common {
                 where IncomingT : Message
                 where OutgoingT : Message {
         const int HEADER_SIZE = 2;
+        const int READ_BUFFER_SIZE = 4096;
 
         TcpClient _client;
         NetworkStream _stream;
-        byte[] _readBuffer = new byte[4096];
-        byte[] _writeBuffer = new byte[4096];
+        byte[] _readBuffer = new byte[READ_BUFFER_SIZE];
+        MemoryStream _writeMemStream;
         BinaryReader _reader;
         BinaryWriter _writer;
         int _readPosition;
@@ -23,8 +24,9 @@ namespace StrategicGame.Common {
         public RemoteSide(TcpClient client, Func<BinaryReader, IncomingT> deserialize) {
             _client = client;
             _stream = client.GetStream();
+            _writeMemStream = new MemoryStream();
             _reader = new BinaryReader(new MemoryStream(_readBuffer));
-            _writer = new BinaryWriter(new MemoryStream(_writeBuffer));
+            _writer = new BinaryWriter(_writeMemStream);
             _deserialize = deserialize;
         }
 
@@ -39,7 +41,10 @@ namespace StrategicGame.Common {
             int bytesRead = 0;
             do {
                 if (DisconnectOnSocketError(() => {
-                        bytesRead = _stream.Read(_readBuffer, _readPosition, _expectedLength - _readPosition);
+                        bytesRead = _stream.Read(
+                            _readBuffer,
+                            _readPosition,
+                            Math.Min(_expectedLength - _readPosition, READ_BUFFER_SIZE));
                     }))
                     return null;
                 _readPosition += bytesRead;
@@ -62,11 +67,11 @@ namespace StrategicGame.Common {
         public void WriteMessage(OutgoingT msg) {
             _writer.Seek(HEADER_SIZE, SeekOrigin.Begin);
             msg.Serialize(_writer);
-            var length = (ushort)_writer.BaseStream.Position;
+            var length = (ushort)_writeMemStream.Position;
             _writer.Seek(0, SeekOrigin.Begin);
             _writer.Write(length);
             DisconnectOnSocketError(() => 
-                _stream.Write(_writeBuffer, 0, length));
+                _stream.Write(_writeMemStream.GetBuffer(), 0, length));
         }
 
         public void WriteMessages(IEnumerable<OutgoingT> msgs) {
