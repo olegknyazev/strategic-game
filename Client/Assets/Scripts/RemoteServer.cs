@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -30,7 +31,7 @@ namespace StrategicGame.Client {
 
         void Start() {
             _running = true;
-            _thread = new Thread(RemoteThread);
+            _thread = new Thread(() => ShutdownOnError(RemoteThread));
             _thread.Start();
         }
 
@@ -58,6 +59,15 @@ namespace StrategicGame.Client {
                 remoteSide.WriteMessages(commandsToSend);
                 commandsToSend.Clear();
                 Thread.Sleep(10);
+            }
+        }
+
+        static void ShutdownOnError(Action a) {
+            try {
+                a();
+            } catch (Exception ex) {
+                Debug.LogErrorFormat("Exception occured in networking thread: {0}", ex);
+                Application.Quit();
             }
         }
 
