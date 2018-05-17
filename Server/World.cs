@@ -45,11 +45,14 @@ namespace StrategicGame.Server {
             _width = r.Next(7, 12);
             _height = r.Next(7, 12);
             _grid = new Grid(_width, _height);
-            for (int i = 0, count = r.Next(2, 5); i < count; ++i) {
+            for (int spawned = 0, count = r.Next(20, 20); spawned < count;) {
                 var pos = new Int2(r.Next(0, _width - 1), r.Next(0, _height - 1));
-                var unit = new Unit(new Float2(pos));
-                _units.Add(unit.Id, unit);
-                _grid[unit] = pos;
+                if (_grid[pos] == null) {
+                    var unit = new Unit(new Float2(pos));
+                    _units.Add(unit.Id, unit);
+                    _grid[unit] = pos;
+                    ++spawned;
+                }
             }
             _mover = new UnitMover(_grid, PathFinding.Find);
             _stepsPerSecond = stepsPerSecond;
