@@ -3,10 +3,10 @@ using StrategicGame.Common;
 
 namespace StrategicGame.Client {
     public class Movement : MonoBehaviour {
+        Animator _animator;
         Vector3 _startPosition;
         Vector3 _destination;
         float _destinationSetTime;
-        Animator _animator;
         bool _moving;
 
         public Vector3 Position {
@@ -18,7 +18,8 @@ namespace StrategicGame.Client {
             set {
                 if (_moving != value) {
                     _moving = value;
-                    _animator.SetBool("Moving", value);
+                    if (_animator)
+                        _animator.SetBool("Moving", value);
                 }
             }
         }

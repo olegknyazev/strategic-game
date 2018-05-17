@@ -24,11 +24,11 @@ namespace StrategicGame.Client {
         }
 
         void OnEnable() {
-            PlayerControls.OnMoveOrder += OnMoveOrder;
+            PlayerControls.OnSendUnits += OnSendUnits;
         }
 
         void OnDisable() {
-            PlayerControls.OnMoveOrder -= OnMoveOrder;
+            PlayerControls.OnSendUnits -= OnSendUnits;
         }
 
         void Update() {
@@ -45,7 +45,7 @@ namespace StrategicGame.Client {
             }
         }
         
-        void OnMoveOrder(IEnumerable<Unit> units, Vector3 destination) {
+        void OnSendUnits(IEnumerable<Unit> units, Vector3 destination) {
             var destinationCell = new Int2(
                 Mathf.RoundToInt(destination.x),
                 Mathf.RoundToInt(destination.z));

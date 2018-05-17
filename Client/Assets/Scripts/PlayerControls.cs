@@ -16,7 +16,7 @@ namespace StrategicGame.Client {
         bool _mousePressed;
         UnitSelector.IFrameSelecting _frameSelecting;
 
-        public event Action<IEnumerable<Unit>, Vector3> OnMoveOrder;
+        public event Action<IEnumerable<Unit>, Vector3> OnSendUnits;
 
         void Awake() {
             Assert.IsNotNull(UnitSelector);    
@@ -41,7 +41,7 @@ namespace StrategicGame.Client {
                     var units = selection.Select(s => s.GetComponent<Unit>()).Where(s => s != null);
                     if (units.Any()) {
                         var groundPoint =  WorldRaycaster.RaycastGround(mousePosition);
-                        OnMoveOrder.InvokeSafe(units, groundPoint);
+                        OnSendUnits.InvokeSafe(units, groundPoint);
                     }
                 }
             } else if (_mousePressed) {

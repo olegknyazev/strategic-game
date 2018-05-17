@@ -8,7 +8,7 @@ namespace StrategicGame.Client {
 
         public void Initialize(UnitId id) {
             Id = id;
-            name = "Unit #" + id;
+            name = "Unit " + id;
         }
 
         void Awake() {

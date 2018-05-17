@@ -47,7 +47,7 @@ namespace StrategicGame.Client {
                 while (_running == 1 && remoteSide == null) {
                     if ((remoteSide = TryConnect(endPoint)) == null)
                         Thread.Sleep(1000);
-                };
+                }
                 Interlocked.Exchange(ref _connected, 1);
                 var commandsToSend = new List<Command>();
                 while (_running == 1 && remoteSide.Connected) {
