@@ -8,14 +8,16 @@ using StrategicGame.Common;
 namespace StrategicGame.Server {
     using RemoteClient = RemoteSide<Command, StatePortion>;
 
-    class Program : IDisposable {
+    class Server : IDisposable {
         static readonly IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
 
         World _world;
+        Action<string> _log;
         List<RemoteClient> _remoteClients = new List<RemoteClient>();
 
-        public Program() {
+        public Server(Action<string> log) {
             _world = World.RandomWorld(Consts.STEPS_PER_SECOND);
+            _log = log;
         }
 
         public void Execute() {
@@ -73,13 +75,8 @@ namespace StrategicGame.Server {
                 client.WriteMessages(state);
         }
 
-        static void Main(string[] args) {
-            using (var program = new Program())
-                program.Execute();
-        }
-
-        static void Log(string message, params object[] args) {
-            Console.WriteLine(message, args);
+        void Log(string message, params object[] args) {
+            _log(string.Format(message, args));
         }
     }
 }

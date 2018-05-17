@@ -40,7 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientAcceptor.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="Grid.cs" />
