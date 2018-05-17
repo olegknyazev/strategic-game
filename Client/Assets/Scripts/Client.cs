@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.Assertions;
 using StrategicGame.Common;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace StrategicGame.Client {
     public class Client : MonoBehaviour {
@@ -42,11 +44,11 @@ namespace StrategicGame.Client {
             }
         }
         
-        void OnMoveOrder(Unit unit, Vector3 destination) {
+        void OnMoveOrder(IEnumerable<Unit> units, Vector3 destination) {
             var destinationCell = new Int2(
                 Mathf.RoundToInt(destination.x),
                 Mathf.RoundToInt(destination.z));
-            RemoteServer.PushCommand(new MoveOrder(new [] { unit.Id }, destinationCell));
+            RemoteServer.PushCommand(new MoveOrder(units.Select(u => u.Id), destinationCell));
         }
 
         void ProcessMessage(Status msg) {

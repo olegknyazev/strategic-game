@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -15,7 +16,7 @@ namespace StrategicGame.Client {
         bool _mousePressed;
         UnitSelector.IFrameSelecting _frameSelecting;
 
-        public event Action<Unit, Vector3> OnMoveOrder;
+        public event Action<IEnumerable<Unit>, Vector3> OnMoveOrder;
 
         void Awake() {
             Assert.IsNotNull(UnitSelector);    
@@ -40,8 +41,7 @@ namespace StrategicGame.Client {
                     var units = selection.Select(s => s.GetComponent<Unit>()).Where(s => s != null);
                     if (units.Any()) {
                         var groundPoint =  WorldRaycaster.RaycastGround(mousePosition);
-                        foreach (var unit in units)
-                            OnMoveOrder.InvokeSafe(unit, groundPoint);
+                        OnMoveOrder.InvokeSafe(units, groundPoint);
                     }
                 }
             } else if (_mousePressed) {

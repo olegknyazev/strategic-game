@@ -53,7 +53,7 @@ namespace StrategicGame.Common {
         }
 
         public override string ToString() {
-            return string.Format("[MoveOrder ({0}) -> {1}]",
+            return string.Format("[MoveOrder [{0}] -> {1}]",
                 string.Join(", ", _units.Select(x => x.ToString()).ToArray()),
                 Destination);
         }
